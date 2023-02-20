@@ -5,7 +5,7 @@ use serenity::model::{
         ApplicationCommandInteractionDataOption, ApplicationCommandInteractionDataOptionValue,
         ApplicationCommandOptionType,
     },
-    prelude::User,
+    prelude::{User, Attachment}
 };
 
 use crate::ParseError;
@@ -25,7 +25,7 @@ use crate::ParseError;
 /// | CHANNEL      | [`PartialChannel`] |
 /// | ROLE         | [`Mentionable`]    |
 /// | NUMBER       | [`f64`]            |
-/// | ATTACHMENT   | N/A                |
+/// | ATTACHMENT   | [`Attachment`]     |
 pub trait ParsableCommandOption: Sized {
     /// Try to parse this from a command argument provided by an interaction.
     /// The argument might not have been provided, hence the optional input - if this is a
@@ -229,6 +229,26 @@ impl ParsableCommandOption for f64 {
 
     fn application_command_option_type() -> ApplicationCommandOptionType {
         ApplicationCommandOptionType::Number
+    }
+}
+
+impl ParsableCommandOption for Attachment {
+    fn parse_from(
+        option: Option<&ApplicationCommandInteractionDataOption>,
+    ) -> Result<Self, ParseError> {
+        match option
+            .ok_or(ParseError::MissingOption)?
+            .resolved
+            .clone()
+            .ok_or(ParseError::MissingOption)?
+        {
+            ApplicationCommandInteractionDataOptionValue::Attachment(att) => Ok(att),
+            _ => Err(ParseError::InvalidOption),
+        }
+    }
+
+    fn application_command_option_type() -> ApplicationCommandOptionType {
+        ApplicationCommandOptionType::Attachment
     }
 }
 
