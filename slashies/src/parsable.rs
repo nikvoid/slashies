@@ -1,9 +1,10 @@
 use serenity::model::{
     channel::PartialChannel,
     guild::{PartialMember, Role},
-    interactions::application_command::{
-        ApplicationCommandInteractionDataOption, ApplicationCommandInteractionDataOptionValue,
-        ApplicationCommandOptionType,
+    application::command::CommandOptionType,
+    application::interaction::application_command::{
+        CommandDataOption,
+        CommandDataOptionValue,
     },
     prelude::{User, Attachment}
 };
@@ -31,12 +32,12 @@ pub trait ParsableCommandOption: Sized {
     /// The argument might not have been provided, hence the optional input - if this is a
     /// non-optional type we would normally return a [`ParseError::MissingOption`] in this case.
     fn parse_from(
-        option: Option<&ApplicationCommandInteractionDataOption>,
+        option: Option<&CommandDataOption>,
     ) -> Result<Self, ParseError>;
 
     /// The Discord type that this rust type maps to - this will determine how the user fills in the
     /// option when using the command in Discord
-    fn application_command_option_type() -> ApplicationCommandOptionType;
+    fn application_command_option_type() -> CommandOptionType;
 
     /// Whether the option is non-optional. Defaults to `true`.
     fn is_required() -> bool {
@@ -46,7 +47,7 @@ pub trait ParsableCommandOption: Sized {
 
 impl ParsableCommandOption for String {
     fn parse_from(
-        option: Option<&ApplicationCommandInteractionDataOption>,
+        option: Option<&CommandDataOption>,
     ) -> Result<Self, ParseError> {
         match option
             .ok_or(ParseError::MissingOption)?
@@ -54,19 +55,19 @@ impl ParsableCommandOption for String {
             .clone()
             .ok_or(ParseError::MissingOption)?
         {
-            ApplicationCommandInteractionDataOptionValue::String(s) => Ok(s),
+            CommandDataOptionValue::String(s) => Ok(s),
             _ => Err(ParseError::InvalidOption),
         }
     }
 
-    fn application_command_option_type() -> ApplicationCommandOptionType {
-        ApplicationCommandOptionType::String
+    fn application_command_option_type() -> CommandOptionType {
+        CommandOptionType::String
     }
 }
 
 impl ParsableCommandOption for i64 {
     fn parse_from(
-        option: Option<&ApplicationCommandInteractionDataOption>,
+        option: Option<&CommandDataOption>,
     ) -> Result<Self, ParseError> {
         match option
             .ok_or(ParseError::MissingOption)?
@@ -74,19 +75,19 @@ impl ParsableCommandOption for i64 {
             .clone()
             .ok_or(ParseError::MissingOption)?
         {
-            ApplicationCommandInteractionDataOptionValue::Integer(i) => Ok(i),
+            CommandDataOptionValue::Integer(i) => Ok(i),
             _ => Err(ParseError::InvalidOption),
         }
     }
 
-    fn application_command_option_type() -> ApplicationCommandOptionType {
-        ApplicationCommandOptionType::Integer
+    fn application_command_option_type() -> CommandOptionType {
+        CommandOptionType::Integer
     }
 }
 
 impl ParsableCommandOption for bool {
     fn parse_from(
-        option: Option<&ApplicationCommandInteractionDataOption>,
+        option: Option<&CommandDataOption>,
     ) -> Result<Self, ParseError> {
         match option
             .ok_or(ParseError::MissingOption)?
@@ -94,13 +95,13 @@ impl ParsableCommandOption for bool {
             .clone()
             .ok_or(ParseError::MissingOption)?
         {
-            ApplicationCommandInteractionDataOptionValue::Boolean(b) => Ok(b),
+            CommandDataOptionValue::Boolean(b) => Ok(b),
             _ => Err(ParseError::InvalidOption),
         }
     }
 
-    fn application_command_option_type() -> ApplicationCommandOptionType {
-        ApplicationCommandOptionType::Boolean
+    fn application_command_option_type() -> CommandOptionType {
+        CommandOptionType::Boolean
     }
 }
 
@@ -115,7 +116,7 @@ pub struct UserInput {
 
 impl ParsableCommandOption for UserInput {
     fn parse_from(
-        option: Option<&ApplicationCommandInteractionDataOption>,
+        option: Option<&CommandDataOption>,
     ) -> Result<Self, ParseError> {
         match option
             .ok_or(ParseError::MissingOption)?
@@ -123,7 +124,7 @@ impl ParsableCommandOption for UserInput {
             .clone()
             .ok_or(ParseError::MissingOption)?
         {
-            ApplicationCommandInteractionDataOptionValue::User(u, pm) => Ok(UserInput {
+            CommandDataOptionValue::User(u, pm) => Ok(UserInput {
                 user: u,
                 member: pm,
             }),
@@ -131,14 +132,14 @@ impl ParsableCommandOption for UserInput {
         }
     }
 
-    fn application_command_option_type() -> ApplicationCommandOptionType {
-        ApplicationCommandOptionType::User
+    fn application_command_option_type() -> CommandOptionType {
+        CommandOptionType::User
     }
 }
 
 impl ParsableCommandOption for PartialChannel {
     fn parse_from(
-        option: Option<&ApplicationCommandInteractionDataOption>,
+        option: Option<&CommandDataOption>,
     ) -> Result<Self, ParseError> {
         match option
             .ok_or(ParseError::MissingOption)?
@@ -146,19 +147,19 @@ impl ParsableCommandOption for PartialChannel {
             .clone()
             .ok_or(ParseError::MissingOption)?
         {
-            ApplicationCommandInteractionDataOptionValue::Channel(c) => Ok(c),
+            CommandDataOptionValue::Channel(c) => Ok(c),
             _ => Err(ParseError::InvalidOption),
         }
     }
 
-    fn application_command_option_type() -> ApplicationCommandOptionType {
-        ApplicationCommandOptionType::Channel
+    fn application_command_option_type() -> CommandOptionType {
+        CommandOptionType::Channel
     }
 }
 
 impl ParsableCommandOption for Role {
     fn parse_from(
-        option: Option<&ApplicationCommandInteractionDataOption>,
+        option: Option<&CommandDataOption>,
     ) -> Result<Self, ParseError> {
         match option
             .ok_or(ParseError::MissingOption)?
@@ -166,13 +167,13 @@ impl ParsableCommandOption for Role {
             .clone()
             .ok_or(ParseError::MissingOption)?
         {
-            ApplicationCommandInteractionDataOptionValue::Role(r) => Ok(r),
+            CommandDataOptionValue::Role(r) => Ok(r),
             _ => Err(ParseError::InvalidOption),
         }
     }
 
-    fn application_command_option_type() -> ApplicationCommandOptionType {
-        ApplicationCommandOptionType::Role
+    fn application_command_option_type() -> CommandOptionType {
+        CommandOptionType::Role
     }
 }
 
@@ -188,7 +189,7 @@ pub enum Mentionable {
 
 impl ParsableCommandOption for Mentionable {
     fn parse_from(
-        option: Option<&ApplicationCommandInteractionDataOption>,
+        option: Option<&CommandDataOption>,
     ) -> Result<Self, ParseError> {
         match option
             .ok_or(ParseError::MissingOption)?
@@ -196,8 +197,8 @@ impl ParsableCommandOption for Mentionable {
             .clone()
             .ok_or(ParseError::MissingOption)?
         {
-            ApplicationCommandInteractionDataOptionValue::Role(r) => Ok(Self::Role(r)),
-            ApplicationCommandInteractionDataOptionValue::User(u, pm) => {
+            CommandDataOptionValue::Role(r) => Ok(Self::Role(r)),
+            CommandDataOptionValue::User(u, pm) => {
                 Ok(Self::User(UserInput {
                     user: u,
                     member: pm,
@@ -207,14 +208,14 @@ impl ParsableCommandOption for Mentionable {
         }
     }
 
-    fn application_command_option_type() -> ApplicationCommandOptionType {
-        ApplicationCommandOptionType::Mentionable
+    fn application_command_option_type() -> CommandOptionType {
+        CommandOptionType::Mentionable
     }
 }
 
 impl ParsableCommandOption for f64 {
     fn parse_from(
-        option: Option<&ApplicationCommandInteractionDataOption>,
+        option: Option<&CommandDataOption>,
     ) -> Result<Self, ParseError> {
         match option
             .ok_or(ParseError::MissingOption)?
@@ -222,19 +223,19 @@ impl ParsableCommandOption for f64 {
             .clone()
             .ok_or(ParseError::MissingOption)?
         {
-            ApplicationCommandInteractionDataOptionValue::Number(n) => Ok(n),
+            CommandDataOptionValue::Number(n) => Ok(n),
             _ => Err(ParseError::InvalidOption),
         }
     }
 
-    fn application_command_option_type() -> ApplicationCommandOptionType {
-        ApplicationCommandOptionType::Number
+    fn application_command_option_type() -> CommandOptionType {
+        CommandOptionType::Number
     }
 }
 
 impl ParsableCommandOption for Attachment {
     fn parse_from(
-        option: Option<&ApplicationCommandInteractionDataOption>,
+        option: Option<&CommandDataOption>,
     ) -> Result<Self, ParseError> {
         match option
             .ok_or(ParseError::MissingOption)?
@@ -242,19 +243,19 @@ impl ParsableCommandOption for Attachment {
             .clone()
             .ok_or(ParseError::MissingOption)?
         {
-            ApplicationCommandInteractionDataOptionValue::Attachment(att) => Ok(att),
+            CommandDataOptionValue::Attachment(att) => Ok(att),
             _ => Err(ParseError::InvalidOption),
         }
     }
 
-    fn application_command_option_type() -> ApplicationCommandOptionType {
-        ApplicationCommandOptionType::Attachment
+    fn application_command_option_type() -> CommandOptionType {
+        CommandOptionType::Attachment
     }
 }
 
 impl<T: ParsableCommandOption> ParsableCommandOption for Option<T> {
     fn parse_from(
-        option: Option<&ApplicationCommandInteractionDataOption>,
+        option: Option<&CommandDataOption>,
     ) -> Result<Self, ParseError> {
         match option {
             Some(opt) => Ok(Some(T::parse_from(Some(opt))?)),
@@ -262,7 +263,7 @@ impl<T: ParsableCommandOption> ParsableCommandOption for Option<T> {
         }
     }
 
-    fn application_command_option_type() -> ApplicationCommandOptionType {
+    fn application_command_option_type() -> CommandOptionType {
         T::application_command_option_type()
     }
 

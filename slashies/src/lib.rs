@@ -113,11 +113,12 @@ use serenity::{
     client::Context,
     model::{
         channel::Message,
-        interactions::{
+        application::interaction::{
             application_command::{
-                ApplicationCommandInteraction, ApplicationCommandInteractionDataOption,
+                ApplicationCommandInteraction,
+                CommandDataOption,
             },
-            message_component::MessageComponentInteraction,
+            message_component::MessageComponentInteraction,         
         },
     },
 };
@@ -265,7 +266,7 @@ pub trait Command: ApplicationCommandInteractionHandler + Sized {
 /// To organize subcommands into groups, see the [`SubCommandGroup`] trait
 pub trait SubCommand: Sized {
     /// Try to parse this from a command option
-    fn parse(option: Option<&ApplicationCommandInteractionDataOption>) -> Result<Self, ParseError>;
+    fn parse(option: Option<&CommandDataOption>) -> Result<Self, ParseError>;
     /// Register any sub options for this subcommand
     fn register_sub_options(
         option: &mut CreateApplicationCommandOption,
@@ -358,7 +359,7 @@ pub trait SubCommand: Sized {
 /// Note that you can mix subcommands and subcommand groups in a command as in the example above.
 pub trait SubCommandGroup: Sized {
     /// Try to parse this from a command option
-    fn parse(option: Option<&ApplicationCommandInteractionDataOption>) -> Result<Self, ParseError>;
+    fn parse(option: Option<&CommandDataOption>) -> Result<Self, ParseError>;
     /// Register any sub options for this subcommand group
     fn register_sub_options(
         option: &mut CreateApplicationCommandOption,
@@ -553,7 +554,7 @@ macro_rules! register_commands {
             })
             .await
         } else {
-            serenity::model::interactions::application_command::ApplicationCommand::set_global_application_commands(&$ctx.http, |commands_builder| {
+            serenity::model::application::command::Command::set_global_application_commands(&$ctx.http, |commands_builder| {
                 commands_builder
                 $(
                     .create_application_command(|command| <$cmdType as slashies::Command>::register(command))
